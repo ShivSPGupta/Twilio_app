@@ -1,7 +1,7 @@
 const twilio = require('twilio');
 const express = require('express');
 const bodyParser = require('body-parser');
-require('dotenv').config(); // Load environment variables
+require('dotenv').config();
 
 const app = express();
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -9,11 +9,11 @@ app.use(bodyParser.urlencoded({ extended: false }));
 const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
 const twilioPhoneNumber = process.env.TWILIO_PHONE_NUMBER;
-const toPhoneNumber = '+919696179380'; // Hardcoded phone number
+const toPhoneNumber = '+919696179380';
 
 const client = require("twilio")(accountSid, authToken);
 
-// Root endpoint to handle the call and play the message
+
 app.post('/', (req, res) => {
     const response = new twilio.twiml.VoiceResponse();
 
@@ -24,11 +24,10 @@ app.post('/', (req, res) => {
 
     const gather = response.gather({
         numDigits: 1,
-        action: '/handle-keypress', // URL to handle user input
+        action: '/handle-keypress', 
         method: 'POST'
     });
 
-    // Fallback message if no input is provided
     gather.say({
         voice: 'alice',
         language: 'en-US'
@@ -38,16 +37,16 @@ app.post('/', (req, res) => {
     res.send(response.toString());
 });
 
-// Endpoint to handle user response
+
 app.post('/handle-keypress', (req, res) => {
     const response = new twilio.twiml.VoiceResponse();
     const selectedOption = req.body.Digits;
-    const callerNumber = req.body.From; // Use 'From' to get the caller's number
+    const callerNumber = req.body.From; 
 
     if (selectedOption === '1') {
         response.say('Thank you for your interest. We will send you a personalized interview link shortly.');
 
-        // Send an SMS with the interview link
+
         client.messages.create({
             body: 'Here is your personalized interview link: https://v.personaliz.ai/?id=9b697c1a&uid=fe141702f66c760d85ab&mode=test',
             from: twilioPhoneNumber,
@@ -69,10 +68,9 @@ app.post('/handle-keypress', (req, res) => {
     res.send(response.toString());
 });
 
-// Endpoint to initiate the call
 app.get('/make-call', (req, res) => {
     client.calls.create({
-        url: "http://demo.twilio.com/docs/voice.xml", // Replace with your public URL if testing online
+        url: "http://demo.twilio.com/docs/voice.xml",
         to: toPhoneNumber,
         from: twilioPhoneNumber,
     })
@@ -86,7 +84,7 @@ app.get('/make-call', (req, res) => {
     });
 });
 
-// Start the server
+
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);
